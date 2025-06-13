@@ -19,7 +19,7 @@ h1 {
 
 .game-board {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  grid-template-columns: repeat(4, 1fr); /* Force 4 columns */
   gap: 10px;
   max-width: 400px;
   margin: auto;
@@ -27,7 +27,7 @@ h1 {
 
 .card {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 1;   /*keeps cards square */
   background-color: #ffffff;
   border: 2px solid #ccc;
   font-size: 32px;
@@ -46,4 +46,9 @@ h1 {
 .card.matched {
   background-color: #a0e0a0;
   pointer-events: none;
+}
+
+#stats {
+  margin: 10px;
+  font-size: 18px;
 }

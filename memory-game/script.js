@@ -3,9 +3,15 @@ let cards = [...emojis, ...emojis]; // duplicate for matching pairs
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
+let timer = 0;
+let moves = 0;
+let timerInterval = null;
+let gameStarted = false;
 
 const gameBoard = document.getElementById('gameBoard');
 const resetBtn = document.getElementById('reset');
+const timerDisplay = document.getElementById('timer');
+const movesDisplay = document.getElementById('moves');
 
 function shuffle(array) {
   return array.sort(() => 0.5 - Math.random());
@@ -24,6 +30,16 @@ function createBoard() {
 }
 
 function flipCard() {
+  
+  // Start timer on first card flip
+  if (!gameStarted) {
+    gameStarted = true;
+    timerInterval = setInterval(() => {
+      timer++;
+      timerDisplay.textContent = timer;
+    }, 1000);
+  }
+
   if (lockBoard || this === firstCard) return;
 
   this.innerText = this.dataset.symbol;
@@ -36,6 +52,11 @@ function flipCard() {
 
   secondCard = this;
   lockBoard = true;
+
+  //add this line after a pair of cards are flipped
+  moves++;
+  movesDisplay.textContent = moves;
+
 
   if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
     firstCard.classList.add('matched');
@@ -65,9 +86,18 @@ function checkGameOver() {
     setTimeout(() => {
       alert('🎉 You matched all the cards!');
     }, 200);
+  clearInterval(timerInterval);   //after win alert, stop timer
   }
 }
 
 resetBtn.addEventListener('click', createBoard);
 
 createBoard(); // initialize
+
+// adding timer and move counter
+timer = 0;
+moves = 0;
+gameStarted = false;
+timerDisplay.textContent = 0;
+movesDisplay.textContent = 0;
+clearInterval(timerInterval);
