@@ -12,6 +12,16 @@ const gameBoard = document.getElementById('gameBoard');
 const resetBtn = document.getElementById('reset');
 const timerDisplay = document.getElementById('timer');
 const movesDisplay = document.getElementById('moves');
+const bestTimeDisplay = document.getElementById('bestTime');
+const bestMovesDisplay = document.getElementById('bestMoves');
+
+function updateBestStats() {
+  const bestTime = localStorage.getItem('bestTime');
+  const bestMoves = localStorage.getItem('bestMoves');
+
+  bestTimeDisplay.textContent = bestTime ?? '–';
+  bestMovesDisplay.textContent = bestMoves ?? '–';
+}
 
 function shuffle(array) {
   return array.sort(() => 0.5 - Math.random());
@@ -27,6 +37,7 @@ function createBoard() {
     card.addEventListener('click', flipCard);
     gameBoard.appendChild(card);
   });
+updateBestStats();
 }
 
 function flipCard() {
@@ -84,9 +95,34 @@ function checkGameOver() {
   );
   if (allMatched) {
     setTimeout(() => {
-      alert('🎉 You matched all the cards!');
-    }, 200);
-  clearInterval(timerInterval);   //after win alert, stop timer
+  clearInterval(timerInterval);
+
+  // Set values in popup
+  document.getElementById('finalTime').textContent = timer;
+  document.getElementById('finalMoves').textContent = moves;
+
+  // Load best score
+  const bestTime = localStorage.getItem('bestTime');
+  const bestMoves = localStorage.getItem('bestMoves');
+
+  let message = '';
+  if (!bestTime || timer < bestTime) {
+    localStorage.setItem('bestTime', timer);
+    message += `🎯 New Best Time!<br>`;
+  }
+
+  if (!bestMoves || moves < bestMoves) {
+    localStorage.setItem('bestMoves', moves);
+    message += `💪 New Best Move Count!`;
+  }
+  
+  updateBestStats();
+
+  document.getElementById('newRecordMessage').innerHTML = message;
+
+  document.getElementById('winPopup').classList.remove('hidden');
+}, 300);
+
   }
 }
 
@@ -101,3 +137,8 @@ gameStarted = false;
 timerDisplay.textContent = 0;
 movesDisplay.textContent = 0;
 clearInterval(timerInterval);
+
+function closePopup() {
+  document.getElementById('winPopup').classList.add('hidden');
+  createBoard(); // reset game
+}

@@ -14,8 +14,23 @@
     🔢 Moves: <span id="moves">0</span>
   </div>
   
+  <div id="bestStats">
+  🏆 Best Time: <span id="bestTime">–</span>s |
+  💯 Best Moves: <span id="bestMoves">–</span>
+  </div>
+
   <button id="reset">🔄 Reset</button>
   <div class="game-board" id="gameBoard"></div>
+
+  <div id="winPopup" class="hidden">
+    <div class="popup-content">
+    <h2>🎉 You Win!</h2>
+    <p>Time: <span id="finalTime">0</span>s</p>
+    <p>Moves: <span id="finalMoves">0</span></p>
+    <p id="newRecordMessage"></p>
+    <button onclick="closePopup()">Play Again</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

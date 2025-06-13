@@ -52,3 +52,37 @@ h1 {
   margin: 10px;
   font-size: 18px;
 }
+
+#bestStats {
+  margin: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+#winPopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background: white;
+  padding: 30px;
+  text-align: center;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 300px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.hidden {
+  display: none;
+}
+
