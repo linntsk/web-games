@@ -1,5 +1,8 @@
-const emojis = ['🐶','🐱','🐻','🐼','🐨','🦁','🐸','🐵'];
-let cards = [...emojis, ...emojis]; // duplicate for matching pairs
+const emojiThemes = {
+  animals: ['🐶','🐱','🐻','🐼','🐨','🦁','🐸','🐵'],
+  food: ['🍎','🍕','🍔','🍣','🍩','🍇','🍓','🍫'],
+  sports: ['⚽','🏀','🏈','⚾','🎾','🏐','🏓','🥊']
+};
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
@@ -15,6 +18,11 @@ const movesDisplay = document.getElementById('moves');
 const bestTimeDisplay = document.getElementById('bestTime');
 const bestMovesDisplay = document.getElementById('bestMoves');
 
+function getSelectedTheme() {
+  const dropdown = document.getElementById('themeDropdown');
+  return dropdown.value;
+}
+
 function updateBestStats() {
   const bestTime = localStorage.getItem('bestTime');
   const bestMoves = localStorage.getItem('bestMoves');
@@ -29,7 +37,12 @@ function shuffle(array) {
 
 function createBoard() {
   gameBoard.innerHTML = '';
+  
+  const selectedTheme = getSelectedTheme();
+  const themeEmojis = emojiThemes[selectedTheme];
+  cards = [...themeEmojis, ...themeEmojis];
   shuffle(cards).forEach(symbol => {
+
     const card = document.createElement('div');
     card.classList.add('card');
     card.dataset.symbol = symbol;
@@ -37,6 +50,15 @@ function createBoard() {
     card.addEventListener('click', flipCard);
     gameBoard.appendChild(card);
   });
+
+  // adding timer and move counter
+  timer = 0;
+  moves = 0;
+  gameStarted = false;
+  timerDisplay.textContent = 0;
+  movesDisplay.textContent = 0;
+  clearInterval(timerInterval);
+
 updateBestStats();
 }
 
@@ -93,33 +115,32 @@ function checkGameOver() {
   const allMatched = [...document.querySelectorAll('.card')].every(card =>
     card.classList.contains('matched')
   );
-  if (allMatched) {
-    setTimeout(() => {
+  if (allMatched && gameStarted) {
   clearInterval(timerInterval);
 
-  // Set values in popup
-  document.getElementById('finalTime').textContent = timer;
-  document.getElementById('finalMoves').textContent = moves;
+    // Set values in popup
+  setTimeout(() => {
+    document.getElementById('finalTime').textContent = timer;
+    document.getElementById('finalMoves').textContent = moves;
 
-  // Load best score
-  const bestTime = localStorage.getItem('bestTime');
-  const bestMoves = localStorage.getItem('bestMoves');
+    // Load best score
+    const bestTime = localStorage.getItem('bestTime');
+    const bestMoves = localStorage.getItem('bestMoves');
 
-  let message = '';
-  if (!bestTime || timer < bestTime) {
-    localStorage.setItem('bestTime', timer);
-    message += `🎯 New Best Time!<br>`;
-  }
+    let message = '';
+    if (!bestTime || timer < bestTime) {
+      localStorage.setItem('bestTime', timer);
+      message += `🎯 New Best Time!<br>`;
+    }
 
-  if (!bestMoves || moves < bestMoves) {
-    localStorage.setItem('bestMoves', moves);
-    message += `💪 New Best Move Count!`;
-  }
+    if (!bestMoves || moves < bestMoves) {
+      localStorage.setItem('bestMoves', moves);
+      message += `💪 New Best Move Count!`;
+    }
   
   updateBestStats();
 
   document.getElementById('newRecordMessage').innerHTML = message;
-
   document.getElementById('winPopup').classList.remove('hidden');
 }, 300);
 
@@ -128,17 +149,17 @@ function checkGameOver() {
 
 resetBtn.addEventListener('click', createBoard);
 
+document.getElementById('themeDropdown').addEventListener('change', () => {
+  createBoard();  // this reloads the board with the new theme
+});
+
 createBoard(); // initialize
 
-// adding timer and move counter
-timer = 0;
-moves = 0;
-gameStarted = false;
-timerDisplay.textContent = 0;
-movesDisplay.textContent = 0;
-clearInterval(timerInterval);
 
 function closePopup() {
+  console.log("Closing popup");
   document.getElementById('winPopup').classList.add('hidden');
   createBoard(); // reset game
 }
+
+window.closePopup = closePopup;

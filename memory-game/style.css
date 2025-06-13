@@ -83,6 +83,54 @@ h1 {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
+#themeSelector {.popup-content {
+  background: white;
+  padding: 30px 20px;
+  text-align: center;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 300px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.popup-content h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.popup-content p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.popup-content button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+}
+
+.popup-content button:hover {
+  background-color: #45a049;
+}
+
+  margin: 15px 0;
+  font-size: 16px;
+}
+
+#themeDropdown {
+  font-size: 16px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  cursor: pointer;
+}
