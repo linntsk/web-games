@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guess the Number Game</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #eef2f3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .game-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      font-size: 1em;
+      width: 80px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 1em;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    #attempts {
+      margin-top: 10px;
+      color: #555;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .info {
+      color: blue;
+    }
+
+    .controls {
+      margin-top: 15px;
+    }
+
+    #guess-history {
+        margin-top: 10px;
+        color: #444;
+        font-style: italic;
+    } 
+
+    @keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.fade {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.shake {
+  animation: shake 0.3s ease;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+    height: auto;
+  }
+
+  .game-container {
+    width: 100%;
+    padding: 20px;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  button {
+    margin: 5px 0;
+  }
+
+  #message, #attempts, #guess-history {
+    font-size: 1em;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Guess the Number</h1>
+    <p>Between 1 and 100</p>
+    <div class="controls">
+      <input type="number" id="guess" min="1" max="100" />
+      <button onclick="checkGuess()" id="guessBtn">Guess</button>
+      <button onclick="resetGame()">Reset</button>
+    </div>
+    <p id="message"></p>
+    <p id="attempts">Attempts: 0</p>
+    <p id="guess-history">Your guesses: None yet</p>
+  </div>
+
+  <script>
+    let guessHistory = [];
+    let randomNumber = Math.floor(Math.random() * 100) + 1;
+    let attempts = 0;
+    let gameOver = false;
+
+    function checkGuess() {
+      if (gameOver) return;
+
+      const guessInput = document.getElementById("guess");
+      const userGuess = Number(guessInput.value);
+      const message = document.getElementById("message");
+      const attemptsDisplay = document.getElementById("attempts");
+
+      if (!userGuess || userGuess < 1 || userGuess > 100) {
+        message.textContent = "Enter a number between 1 and 100.";
+        message.className = "error";
+        message.classList.add("fade");
+            setTimeout(() => message.classList.remove("fade"), 500);
+        return;
+      }
+
+      attempts++;
+        guessHistory.push(userGuess);
+        document.getElementById("guess-history").textContent =
+        "Your guesses: " + guessHistory.join(", ");
+
+      attemptsDisplay.textContent = `Attempts: ${attempts}`;
+
+      if (userGuess === randomNumber) {
+        message.textContent = `🎉 Correct! You got it in ${attempts} tries.`;
+        message.className = "success";
+        gameOver = true;
+      } else if (userGuess < randomNumber) {
+        message.textContent = "📉 Too low! Try again.";
+        message.className = "info";
+      } else {
+        message.textContent = "📈 Too high! Try again.";
+        message.className = "info";
+      }
+
+      guessInput.value = "";
+      guessInput.focus();
+      
+      if (userGuess !== randomNumber) {
+        guessInput.classList.add("shake");
+        setTimeout(() => guessInput.classList.remove("shake"), 300);
+        }
+
+    }
+
+    function resetGame() {
+      randomNumber = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      gameOver = false;
+      document.getElementById("message").textContent = "";
+      document.getElementById("attempts").textContent = "Attempts: 0";
+      document.getElementById("guess").value = "";
+      guessHistory = [];
+      document.getElementById("guess-history").textContent = "Your guesses: None yet";
+
+    }
+  </script>
+</body>
+</html>
