@@ -1,17 +1,83 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Web Games</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; text-align: center; }
-    a { display: block; margin: 10px; font-size: 20px; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      text-align: center;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 30px;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .game-card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .game-card:hover {
+      transform: scale(1.03);
+    }
+
+    .game-title {
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+
+    .game-desc {
+      font-size: 0.95em;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .game-link {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .game-link:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
   <h1>🎮 Welcome to My Web Games</h1>
-  <a href="memory-game/index.html">🧠 Memory Game</a>
-  <!-- Add more links below -->
+
+  <div class="game-grid">
+    <div class="game-card">
+      <div class="game-title">🧠 Memory Game</div>
+      <div class="game-desc">Match all pairs with the fewest moves and fastest time. Great for cognitive training.</div>
+      <a class="game-link" href="memory-game/index.html">Play Now</a>
+    </div>
+
+    <div class="game-card">
+      <div class="game-title">🔢 Guess the Number</div>
+      <div class="game-desc">Try to guess the number chosen by the computer in as few attempts as possible.</div>
+      <a class="game-link" href="guess-number-game/index.html">Play Now</a>
+    </div>
+  </div>
 </body>
 </html>
