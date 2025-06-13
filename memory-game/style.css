@@ -30,17 +30,20 @@ h1 {
 
 .card {
   width: 100%;
-  aspect-ratio: 1 / 1;   /*keeps cards square */
+  aspect-ratio: 1 / 1;
   background-color: #ffffff;
   border: 2px solid #ccc;
-  font-size: 32px;
+  font-size: 75px; /* Adjust this for emoji size */
+  line-height: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   user-select: none;
   transition: transform 0.3s;
+  overflow: hidden; /* Prevents oversized emoji spill */
 }
+
 
 .card.flipped {
   background-color: #d0f0d0;
@@ -128,8 +131,18 @@ h1 {
 
 @media (max-width: 500px) {
   .card {
-    font-size: 24px;
-  }
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-color: #ffffff;
+  border: 2px solid #ccc;
+  font-size: 12vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s;
+}
 
   #stats, #bestStats {
     font-size: 14px;
