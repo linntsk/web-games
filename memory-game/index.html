@@ -20,14 +20,29 @@
   </div>
 
 <div id="controls">
-  <button id="reset">🔄 Reset</button>
-  <label for="themeDropdown">🎨 Theme:</label>
-  <select id="themeDropdown">
-    <option value="animals">Animals</option>
-    <option value="food">Food</option>
-    <option value="sports">Sports</option>
-  </select>
+  <div id="selectors">
+    <label for="themeDropdown">🎨 Theme:</label>
+    <select id="themeDropdown">
+      <option value="animals">Animals</option>
+      <option value="food">Food</option>
+      <option value="sports">Sports</option>
+      <option value="weather">Weather</option>
+      <option value="faces">Faces</option>
+    </select>
+
+    <label for="difficultyDropdown">🧩 Difficulty:</label>
+    <select id="difficultyDropdown">
+      <option value="normal">Normal (4x5)</option>
+      <option value="medium">Medium (6x5)</option>
+      <option value="hard">Hard (8x5)</option>
+    </select>
+  </div>
+
+  <div id="resetRow">
+    <button id="reset">🔄 Reset</button>
+  </div>
 </div>
+
 
 <div class="game-board" id="gameBoard"></div>
 

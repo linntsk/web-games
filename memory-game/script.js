@@ -1,8 +1,11 @@
 const emojiThemes = {
-  animals: ['🐶','🐱','🐻','🐼','🐨','🦁','🐸','🐵'],
-  food: ['🍎','🍕','🍔','🍣','🍩','🍇','🍓','🍫'],
-  sports: ['⚽','🏀','🏈','⚾','🎾','🏐','🏓','🥊']
+  animals: ['🐶','🐱','🐻','🐼','🐨','🦁','🐸','🐵','🐔','🐷','🐮','🐰','🐯','🦊','🐹','🐢','🦓','🦒','🦘','🐊','🦀','🐙','🐬','🦉','🦄','🐝','🐞','🐍','🦔','🦕','🦖','🦂','🦚'],
+  food: ['🍎','🍌','🍇','🍉','🍒','🍓','🍍','🥭','🍅','🥕','🌽','🥦','🧄','🥔','🥐','🍞','🧀','🍗','🍖','🍔','🍟','🍕','🌮','🌯','🍝','🍜','🍣','🍤','🍦','🍩','🍪','🍫','🍬'],
+  sports: ['⚽','🏀','🏈','⚾','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🥊','🥋','⛳','🏒','🏑','🏏','🥌','🏹','🛹','🛷','🎿','⛷️','🏂','🚴','🚵','🏇','🏄','🤽','🤾','🤸','🤼','⛸️'],
+  weather: ['☀️','🌤️','🌧️','⛈️','🌩️','❄️','🌪️','🌫️','🌈','🌂','☔','🌬️','🌡️','🌀','☁️','💨','🔥','🌊','🪐','🌙','⭐','🌟','⚡','☃️','🌅','🌄','🌃','🌆','🌇','🌉','🌌','🎇','🎆'],
+  faces: ['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','😐','😑','😶','🙄']
 };
+
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
@@ -23,9 +26,18 @@ function getSelectedTheme() {
   return dropdown.value;
 }
 
+function getDifficultyCardCount() {
+  const level = document.getElementById('difficultyDropdown').value;
+  if (level === 'normal') return 10;  // 4x5
+  if (level === 'medium') return 15;  // 6x5
+  if (level === 'hard') return 20;    // 8x5
+  return 10;
+}
+
 function updateBestStats() {
-  const bestTime = localStorage.getItem('bestTime');
-  const bestMoves = localStorage.getItem('bestMoves');
+  const difficulty = document.getElementById('difficultyDropdown').value;
+  const bestTime = localStorage.getItem(`bestTime_${difficulty}`);
+  const bestMoves = localStorage.getItem(`bestMoves_${difficulty}`);
 
   bestTimeDisplay.textContent = bestTime ?? '–';
   bestMovesDisplay.textContent = bestMoves ?? '–';
@@ -37,12 +49,12 @@ function shuffle(array) {
 
 function createBoard() {
   gameBoard.innerHTML = '';
-  
-  const selectedTheme = getSelectedTheme();
-  const themeEmojis = emojiThemes[selectedTheme];
-  cards = [...themeEmojis, ...themeEmojis];
+  const theme = document.getElementById('themeDropdown').value;
+  const pool = [...emojiThemes[theme]];
+  const pairCount = getDifficultyCardCount();
+  const selected = shuffle(pool).slice(0, pairCount);
+  cards = [...selected, ...selected]; // duplicate for matching
   shuffle(cards).forEach(symbol => {
-
     const card = document.createElement('div');
     card.classList.add('card');
     card.dataset.symbol = symbol;
@@ -51,16 +63,29 @@ function createBoard() {
     gameBoard.appendChild(card);
   });
 
-  // adding timer and move counter
+// adding timer and move counter and reset game stats
   timer = 0;
   moves = 0;
   gameStarted = false;
   timerDisplay.textContent = 0;
   movesDisplay.textContent = 0;
   clearInterval(timerInterval);
+  updateBestStats();
 
-updateBestStats();
+// Adjust grid layout
+gameBoard.style.gridTemplateColumns = 'repeat(5, 1fr)';
+
+// Adjust font size for emoji visibility based on board size
+let fontSize = '32px';
+if (pairCount === 15) fontSize = '26px';
+else if (pairCount === 20) fontSize = '22px';
+
+document.querySelectorAll('.card').forEach(card => {
+  card.style.fontSize = fontSize;
+});
+
 }
+
 
 function flipCard() {
   
@@ -124,19 +149,21 @@ function checkGameOver() {
     document.getElementById('finalMoves').textContent = moves;
 
     // Load best score
-    const bestTime = localStorage.getItem('bestTime');
-    const bestMoves = localStorage.getItem('bestMoves');
+  const difficulty = document.getElementById('difficultyDropdown').value;
+  const bestTime = localStorage.getItem(`bestTime_${difficulty}`);
+  const bestMoves = localStorage.getItem(`bestMoves_${difficulty}`);
 
-    let message = '';
-    if (!bestTime || timer < bestTime) {
-      localStorage.setItem('bestTime', timer);
-      message += `🎯 New Best Time!<br>`;
-    }
+  let message = '';
+  if (!bestTime || timer < bestTime) {
+    localStorage.setItem(`bestTime_${difficulty}`, timer);
+    message += `🎯 New Best Time!<br>`;
+  }
 
-    if (!bestMoves || moves < bestMoves) {
-      localStorage.setItem('bestMoves', moves);
-      message += `💪 New Best Move Count!`;
-    }
+  if (!bestMoves || moves < bestMoves) {
+    localStorage.setItem(`bestMoves_${difficulty}`, moves);
+    message += `💪 New Best Move Count!`;
+  }
+
   
   updateBestStats();
 
@@ -151,6 +178,10 @@ resetBtn.addEventListener('click', createBoard);
 
 document.getElementById('themeDropdown').addEventListener('change', () => {
   createBoard();  // this reloads the board with the new theme
+});
+
+document.getElementById('difficultyDropdown').addEventListener('change', () => {
+  createBoard();  // reloads board with new difficulty
 });
 
 createBoard(); // initialize
