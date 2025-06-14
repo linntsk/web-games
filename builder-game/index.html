@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Builder Challenge</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #d0e6f7;
+    }
+    h1 {
+      text-align: center;
+      background: #345;
+      color: white;
+      padding: 1rem;
+    }
+    #toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.5rem;
+    }
+    #game {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .palette {
+      width: 100px;
+    }
+    .block {
+      position: relative;
+      margin: 0.25rem;
+      border: 2px solid #aa4;
+      cursor: grab;
+      transform: scale(0.6);
+      transform-origin: top left;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+    }
+    .block span {
+      pointer-events: none;
+    }
+    #grid-wrapper {
+      position: relative;
+    }
+    #grid {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      background: #f0f0f0;
+      display: grid;
+      grid-template-columns: repeat(20, 30px);
+      grid-template-rows: repeat(13, 30px);
+      border: 2px solid #444;
+      z-index: 1;
+    }
+    #blueprint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 600px;
+  height: 400px;
+  background-image: url('tree_blueprint.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.2;
+  z-index: 0;
+}
+    .placed-block {
+      position: absolute;
+      border: 2px solid #aa4;
+      cursor: move;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+    }
+    .selected {
+      outline: 2px dashed red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Builder Challenge</h1>
+  <div id="toolbar">
+    <button onclick="clearGrid()">Clear All</button>
+    <button onclick="checkScore()">Check Score</button>
+    <strong>Challenge: Build a Tree 🌳</strong>
+  </div>
+  <div id="game">
+    <div class="palette" id="setA">
+      <h4>Set A<br>(Green)</h4>
+      <div class="block" draggable="true" data-width="30" data-height="30" data-color="green" style="width:30px; height:30px; background:green;"><span>1x1</span></div>
+      <div class="block" draggable="true" data-width="60" data-height="30" data-color="green" style="width:60px; height:30px; background:green;"><span>1x2</span></div>
+      <div class="block" draggable="true" data-width="90" data-height="30" data-color="green" style="width:90px; height:30px; background:green;"><span>1x3</span></div>
+      <div class="block" draggable="true" data-width="120" data-height="30" data-color="green" style="width:120px; height:30px; background:green;"><span>1x4</span></div>
+      <div class="block" draggable="true" data-width="60" data-height="60" data-color="green" style="width:60px; height:60px; background:green;"><span>2x2</span></div>
+      <div class="block" draggable="true" data-width="90" data-height="60" data-color="green" style="width:90px; height:60px; background:green;"><span>2x3</span></div>
+      <div class="block" draggable="true" data-width="120" data-height="60" data-color="green" style="width:120px; height:60px; background:green;"><span>2x4</span></div>
+      <div class="block" draggable="true" data-width="90" data-height="90" data-color="green" style="width:90px; height:90px; background:green;"><span>3x3</span></div>
+    </div>
+    <div class="palette" id="setB">
+      <h4>Set B<br>(Brown)</h4>
+      <div class="block" draggable="true" data-width="30" data-height="30" data-color="brown" style="width:30px; height:30px; background:brown;"><span>1x1</span></div>
+      <div class="block" draggable="true" data-width="60" data-height="30" data-color="brown" style="width:60px; height:30px; background:brown;"><span>1x2</span></div>
+      <div class="block" draggable="true" data-width="90" data-height="30" data-color="brown" style="width:90px; height:30px; background:brown;"><span>1x3</span></div>
+      <div class="block" draggable="true" data-width="120" data-height="30" data-color="brown" style="width:120px; height:30px; background:brown;"><span>1x4</span></div>
+      <div class="block" draggable="true" data-width="60" data-height="60" data-color="brown" style="width:60px; height:60px; background:brown;"><span>2x2</span></div>
+      <div class="block" draggable="true" data-width="90" data-height="60" data-color="brown" style="width:90px; height:60px; background:brown;"><span>2x3</span></div>
+      <div class="block" draggable="true" data-width="120" data-height="60" data-color="brown" style="width:120px; height:60px; background:brown;"><span>2x4</span></div>
+      <div class="block" draggable="true" data-width="90" data-height="90" data-color="brown" style="width:90px; height:90px; background:brown;"><span>3x3</span></div>
+    </div>
+    <div id="grid-wrapper">
+      <div id="blueprint"></div>
+      <div id="grid"></div>
+    </div>
+  </div>
+
+  <script>
+    let draggedBlock = null;
+    let selectedBlock = null;
+    let offsetX = 0, offsetY = 0;
+
+    const blueprintGrid = Array(260).fill("");
+    // Tree variation sample shape
+    const G = "G", B = "B";
+    [[2,6],[2,7],[2,8],[2,9],[2,10],
+     [3,6],[3,7],[3,8],[3,9],[3,10],
+     [4,7],[4,8],[4,9],
+     [5,8],[6,8],[7,8],[8,8],[9,8]].forEach(([r,c]) => {
+      const idx = r*20 + c;
+      blueprintGrid[idx] = r >= 7 ? B : G;
+    });
+
+    function clearGrid() {
+      document.querySelectorAll('.placed-block').forEach(block => block.remove());
+      selectedBlock = null;
+    }
+
+    function checkScore() {
+      const placed = Array(260).fill("");
+      document.querySelectorAll('.placed-block').forEach(block => {
+        const x = parseInt(block.style.left)/30;
+        const y = parseInt(block.style.top)/30;
+        const w = block.offsetWidth / 30;
+        const h = block.offsetHeight / 30;
+        const color = block.style.backgroundColor.includes("green") ? "G" : "B";
+        for(let dy=0; dy<h; dy++){
+          for(let dx=0; dx<w; dx++){
+            const idx = (y+dy)*20 + (x+dx);
+            placed[idx] = color;
+          }
+        }
+      });
+      let match = 0, total = 0;
+      blueprintGrid.forEach((cell, i) => {
+        if(cell){ total++; if(cell === placed[i]) match++; }
+      });
+      const score = total ? Math.round(match/total*100) : 0;
+      alert(`Your score: ${score}% match to the tree blueprint.`);
+    }
+
+    document.querySelectorAll('.block').forEach(block => {
+      block.addEventListener('dragstart', e => {
+        draggedBlock = {
+          width: parseInt(block.dataset.width),
+          height: parseInt(block.dataset.height),
+          color: block.dataset.color,
+          label: block.innerText.trim()
+        };
+      });
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'r' && selectedBlock) {
+        const currentWidth = selectedBlock.offsetWidth;
+        const currentHeight = selectedBlock.offsetHeight;
+        selectedBlock.style.width = `${currentHeight}px`;
+        selectedBlock.style.height = `${currentWidth}px`;
+      }
+      if (e.key === 'Delete' && selectedBlock) {
+        selectedBlock.remove();
+        selectedBlock = null;
+      }
+    });
+
+    const grid = document.getElementById('grid');
+    grid.addEventListener('dragover', e => e.preventDefault());
+    grid.addEventListener('drop', e => {
+      if (draggedBlock) {
+        const rect = grid.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left) / 30) * 30;
+        const y = Math.floor((e.clientY - rect.top) / 30) * 30;
+
+        const newBlock = document.createElement('div');
+        newBlock.className = 'placed-block';
+        newBlock.style.left = `${x}px`;
+        newBlock.style.top = `${y}px`;
+        newBlock.style.width = `${draggedBlock.width}px`;
+        newBlock.style.height = `${draggedBlock.height}px`;
+        newBlock.style.backgroundColor = draggedBlock.color;
+        newBlock.innerText = draggedBlock.label;
+
+        newBlock.addEventListener('mousedown', e => {
+          selectedBlock?.classList.remove('selected');
+          selectedBlock = newBlock;
+          newBlock.classList.add('selected');
+          offsetX = e.offsetX;
+          offsetY = e.offsetY;
+        });
+
+        grid.appendChild(newBlock);
+        draggedBlock = null;
+      }
+    });
+
+    grid.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('placed-block')) {
+        selectedBlock?.classList.remove('selected');
+        selectedBlock = e.target;
+        selectedBlock.classList.add('selected');
+        offsetX = e.offsetX;
+        offsetY = e.offsetY;
+      } else {
+        selectedBlock?.classList.remove('selected');
+        selectedBlock = null;
+      }
+    });
+
+    grid.addEventListener('mousemove', e => {
+      if (selectedBlock && e.buttons === 1) {
+        const rect = grid.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left - offsetX) / 30) * 30;
+        const y = Math.floor((e.clientY - rect.top - offsetY) / 30) * 30;
+        selectedBlock.style.left = `${x}px`;
+        selectedBlock.style.top = `${y}px`;
+      }
+    });
+  </script>
+</body>
+</html>

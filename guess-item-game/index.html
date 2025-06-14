@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guess the Fruit: Hint Mode</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 30px;
+      background-color: #fff8e1;
+    }
+    #hint-box {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    input {
+      font-size: 20px;
+      padding: 15px;
+      margin: 10px;
+      width: 80%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+    button {
+      font-size: 20px;
+      padding: 15px 25px;
+      margin: 10px;
+      touch-action: manipulation;
+    }
+    #result {
+      font-size: 22px;
+      margin-top: 20px;
+      color: green;
+    }
+    #timer, #scoreboard {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    #progressBar {
+      width: 80%;
+      max-width: 400px;
+      height: 20px;
+      background-color: #ddd;
+      margin: 10px auto;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    #progress {
+      height: 100%;
+      background-color: #4caf50;
+      width: 0%;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍎 Guess the Fruit (Hint Mode)</h1>
+  <div id="timer">⏱️ Time: <span id="time">0</span>s</div>
+  <div id="scoreboard">⭐ Correct: <span id="correct">0</span> | 🏆 Best Time: <span id="bestTime">--</span>s | ⏳ Longest Streak: <span id="streak">0</span></div>
+  <div id="progressBar"><div id="progress"></div></div>
+  
+  <input type="text" id="guessInput" placeholder="Your guess..." />
+  <button onclick="makeGuess()">Guess</button>
+  
+  <div id="tries">Tries left: 5</div>
+  <div id="hint-box"></div>
+  <div id="result"></div>
+  <button id="restartButton" onclick="resetGame()" style="display:none; margin-top: 15px; font-size: 18px; padding: 10px 20px;">🔄 Restart Game</button>
+
+  <script>
+    const fruits = [
+      { name: "apple", hints: ["I’m round and can be red, green, or yellow.", "I’m crunchy when you bite into me.", "I grow on trees in orchards.", "People say one of me a day keeps the doctor away.", "You can find me in pies, juices, and lunchboxes."] },
+      { name: "orange", hints: ["I’m round and orange in color.", "You can peel me with your hands.", "I’m juicy and full of vitamin C.", "People often drink me as juice.", "I have segments inside."] },
+      { name: "grape", hints: ["I’m small and round.", "I can be green, red, or purple.", "I grow in bunches.", "You can eat me fresh or dried as raisins.", "People also use me to make juice and wine."] },
+      { name: "pineapple", hints: ["I’m big and spiky on the outside.", "I wear a green crown of leaves.", "I’m yellow and sweet on the inside.", "I grow in tropical places.", "I taste great on pizza or in juice."] },
+      { name: "mango", hints: ["I’m tropical and very juicy.", "My skin can be red, yellow, or green.", "I have a big seed inside.", "I’m often used in smoothies or ice cream.", "I’m sweet and a little tangy."] },
+      { name: "strawberry", hints: ["I’m red with tiny seeds on my skin.", "I’m shaped like a heart.", "I have a green leafy top.", "I’m sweet and juicy.", "People love me with cream or chocolate."] },
+      { name: "kiwi", hints: ["I have a fuzzy brown skin.", "My inside is bright green with black seeds.", "I’m tart and sweet.", "I’m small and oval-shaped.", "People often scoop me out with a spoon."] },
+      { name: "watermelon", hints: ["I’m large and round or oval.", "My outside is green, inside is red with seeds.", "I’m very juicy.", "I’m popular in summer.", "People love me at picnics."] },
+      { name: "blueberry", hints: ["I’m small and round.", "I’m deep blue in color.", "I grow in clusters.", "I’m often found in muffins.", "I’m full of antioxidants."] },
+      { name: "papaya", hints: ["I’m tropical and oblong.", "My skin is greenish yellow.", "I have black seeds inside.", "My flesh is orange.", "I’m great for digestion."] }
+    ];
+
+    let mysteryFruit;
+    let hintIndex, triesLeft, startTime;
+    let correctCount = 0, bestTime = Infinity, longestStreak = 0, currentStreak = 0;
+
+    const hintBox = document.getElementById("hint-box");
+    const timeEl = document.getElementById("time");
+    const triesEl = document.getElementById("tries");
+    const resultEl = document.getElementById("result");
+    const inputEl = document.getElementById("guessInput");
+    const correctEl = document.getElementById("correct");
+    const bestTimeEl = document.getElementById("bestTime");
+    const streakEl = document.getElementById("streak");
+    const progressEl = document.getElementById("progress");
+
+    function resetGame() {
+      mysteryFruit = fruits[Math.floor(Math.random() * fruits.length)];
+      hintIndex = 0;
+      triesLeft = 5;
+      startTime = Date.now();
+      hintBox.innerHTML = "";
+      resultEl.textContent = "";
+      inputEl.disabled = false;
+      inputEl.value = "";
+      triesEl.textContent = "Tries left: " + triesLeft;
+      updateProgress();
+      revealHint();
+      clearInterval(hintInterval);
+      hintInterval = setInterval(revealHint, 5000);
+    }
+
+    function updateTimer() {
+      let now = Date.now();
+      timeEl.textContent = Math.floor((now - startTime) / 1000);
+    }
+    setInterval(updateTimer, 1000);
+
+    function revealHint() {
+      if (hintIndex < mysteryFruit.hints.length) {
+        hintBox.innerHTML += `<p>🔍 ${mysteryFruit.hints[hintIndex]}</p>`;
+        hintIndex++;
+        updateProgress();
+      } else {
+        endGame("❌ Out of hints! The fruit was: " + mysteryFruit.name.toUpperCase(), false);
+      }
+    }
+
+    function updateProgress() {
+      progressEl.style.width = `${(hintIndex / mysteryFruit.hints.length) * 100}%`;
+    }
+
+    function makeGuess() {
+      const guess = inputEl.value.trim().toLowerCase();
+      if (guess === mysteryFruit.name) {
+        const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+        correctCount++;
+        currentStreak++;
+        if (timeTaken < bestTime) bestTime = timeTaken;
+        updateStats();
+        endGame(`✅ Correct! It's ${mysteryFruit.name.toUpperCase()}! Time: ${timeTaken}s`, true);
+      } else {
+        triesLeft--;
+        triesEl.textContent = "Tries left: " + triesLeft;
+        if (triesLeft <= 0) {
+          endGame("❌ Out of tries! The fruit was: " + mysteryFruit.name.toUpperCase(), false);
+        } else {
+          resultEl.textContent = "❌ Try again!";
+        }
+      }
+    }
+
+    function updateStats() {
+      correctEl.textContent = correctCount;
+      bestTimeEl.textContent = bestTime === Infinity ? "--" : bestTime;
+      if (currentStreak > longestStreak) longestStreak = currentStreak;
+      streakEl.textContent = longestStreak;
+    }
+
+    function endGame(message, success) {
+      clearInterval(hintInterval);
+      resultEl.textContent = message;
+      inputEl.disabled = true;
+      if (!success) currentStreak = 0;
+      document.getElementById('restartButton').style.display = 'inline-block';
+    }
+
+    inputEl.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        makeGuess();
+      }
+    });
+
+    let hintInterval;
+    resetGame();
+  </script>
+</body>
+</html>
