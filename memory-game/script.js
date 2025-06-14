@@ -75,6 +75,7 @@ function createBoard() {
 // Adjust grid layout
 gameBoard.style.gridTemplateColumns = 'repeat(5, 1fr)';
 
+//ignore the need to define fontsize. need to check if below is redundant
 document.querySelectorAll('.card').forEach(card => {
   card.style.fontSize = fontSize;
 });
@@ -148,6 +149,9 @@ function checkGameOver() {
   const bestTime = localStorage.getItem(`bestTime_${difficulty}`);
   const bestMoves = localStorage.getItem(`bestMoves_${difficulty}`);
 
+  saveToLeaderboard(timer, moves);
+  updateLeaderboard();
+
   let message = '';
   if (!bestTime || timer < bestTime) {
     localStorage.setItem(`bestTime_${difficulty}`, timer);
@@ -159,28 +163,69 @@ function checkGameOver() {
     message += `💪 New Best Move Count!`;
   }
 
-  
   updateBestStats();
 
   document.getElementById('newRecordMessage').innerHTML = message;
   document.getElementById('winPopup').classList.remove('hidden');
 }, 300);
-
+ 
   }
 }
+
+function saveToLeaderboard(time, moves) {
+  const difficulty = document.getElementById('difficultyDropdown').value;
+  const theme = document.getElementById('themeDropdown').value;
+  const entry = {
+    time,
+    moves,
+    date: new Date().toLocaleString()
+  };
+
+  const key = `leaderboard_${theme}_${difficulty}`;
+  const current = JSON.parse(localStorage.getItem(key)) || [];
+
+  current.push(entry);
+  current.sort((a, b) => a.time - b.time || a.moves - b.moves);
+  const top5 = current.slice(0, 5);
+
+  localStorage.setItem(key, JSON.stringify(top5));
+}
+
+function updateLeaderboard() {
+  const difficulty = document.getElementById('difficultyDropdown').value;
+  const theme = document.getElementById('themeDropdown').value;
+  const key = `leaderboard_${theme}_${difficulty}`;
+  const scores = JSON.parse(localStorage.getItem(key)) || [];
+  const list = document.getElementById('leaderboardList');
+
+  // 💡 Add this line to show label
+  document.getElementById('leaderboardLabel').textContent =
+    `Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}, Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
+
+  list.innerHTML = '';
+  scores.forEach((score, index) => {
+    const item = document.createElement('li');
+    item.textContent = `${index + 1}. ⏱️ ${score.time}s | 🔢 ${score.moves} moves | 📅 ${score.date}`;
+    list.appendChild(item);
+  });
+}
+
 
 resetBtn.addEventListener('click', createBoard);
 
 document.getElementById('themeDropdown').addEventListener('change', () => {
   createBoard();  // this reloads the board with the new theme
+  updateLeaderboard();
 });
 
 document.getElementById('difficultyDropdown').addEventListener('change', () => {
   createBoard();  // reloads board with new difficulty
+  updateLeaderboard();
 });
 
 createBoard(); // initialize
 
+updateLeaderboard();
 
 function closePopup() {
   console.log("Closing popup");
@@ -189,3 +234,4 @@ function closePopup() {
 }
 
 window.closePopup = closePopup;
+

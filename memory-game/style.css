@@ -65,6 +65,28 @@ h1 {
   color: #333;
 }
 
+#leaderboardSection {
+  margin: 20px auto;
+  max-width: 400px;
+  text-align: left;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#leaderboardSection h3 {
+  margin-top: 0;
+  text-align: center;
+}
+
+#leaderboardList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+}
+
 #winPopup {
   position: fixed;
   top: 0;
