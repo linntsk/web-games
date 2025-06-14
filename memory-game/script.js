@@ -75,11 +75,6 @@ function createBoard() {
 // Adjust grid layout
 gameBoard.style.gridTemplateColumns = 'repeat(5, 1fr)';
 
-// Adjust font size for emoji visibility based on board size
-let fontSize = '32px';
-if (pairCount === 15) fontSize = '26px';
-else if (pairCount === 20) fontSize = '22px';
-
 document.querySelectorAll('.card').forEach(card => {
   card.style.fontSize = fontSize;
 });

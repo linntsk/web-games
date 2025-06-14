@@ -33,7 +33,7 @@ h1 {
   aspect-ratio: 1 / 1;
   background-color: #ffffff;
   border: 2px solid #ccc;
-  font-size: clamp(24px, 8vw, 60px);
+  font-size: 2.5rem;   /* fixed emoji size */
   line-height: 1;
   display: flex;
   justify-content: center;
@@ -173,15 +173,30 @@ h1 {
 }
 
 #selectors {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
 
-#selectors select,
 #selectors label {
-  margin: 5px;
+  font-size: 14px;
+}
+
+#selectors select {
+  font-size: 14px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  cursor: pointer;
 }
 
 #resetRow {
+  text-align: center;
   margin-top: 10px;
 }
+
 
