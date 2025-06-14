@@ -60,11 +60,11 @@
   <div id="scoreboard">⭐ Correct: <span id="correct">0</span> | 🏆 Best Time: <span id="bestTime">--</span>s | ⏳ Longest Streak: <span id="streak">0</span></div>
   <div id="progressBar"><div id="progress"></div></div>
   
+  <div id="hint-box"></div>
   <input type="text" id="guessInput" placeholder="Your guess..." />
   <button onclick="makeGuess()">Guess</button>
-  
   <div id="tries">Tries left: 5</div>
-  <div id="hint-box"></div>
+  
   <div id="result"></div>
   <button id="restartButton" onclick="resetGame()" style="display:none; margin-top: 15px; font-size: 18px; padding: 10px 20px;">🔄 Restart Game</button>
 
@@ -110,6 +110,7 @@
       revealHint();
       clearInterval(hintInterval);
       hintInterval = setInterval(revealHint, 5000);
+      inputEl.focus(); // 👈 Auto-focus here
     }
 
     function updateTimer() {
