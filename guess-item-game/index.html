@@ -56,6 +56,12 @@
 </head>
 <body>
   <h1>🍎 Guess the Fruit (Hint Mode)</h1>
+  <label for="difficulty">🎮 Difficulty:</label>
+  <select id="difficulty" onchange="resetGame()">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard</option>
+  </select>
   <div id="timer">⏱️ Time: <span id="time">0</span>s</div>
   <div id="scoreboard">⭐ Correct: <span id="correct">0</span> | 🏆 Best Time: <span id="bestTime">--</span>s | ⏳ Longest Streak: <span id="streak">0</span></div>
   <div id="progressBar"><div id="progress"></div></div>
@@ -85,6 +91,7 @@
     let mysteryFruit;
     let hintIndex, triesLeft, startTime;
     let correctCount = 0, bestTime = Infinity, longestStreak = 0, currentStreak = 0;
+    let hintInterval;
 
     const hintBox = document.getElementById("hint-box");
     const timeEl = document.getElementById("time");
@@ -97,20 +104,36 @@
     const progressEl = document.getElementById("progress");
 
     function resetGame() {
+      const level = document.getElementById("difficulty").value;
+      let maxTries, hintSpeed;
+
+      if (level === "easy") {
+        maxTries = 5;
+        hintSpeed = 5000;
+      } else if (level === "medium") {
+        maxTries = 4;
+        hintSpeed = 4000;
+      } else {
+        maxTries = 3;
+        hintSpeed = 3000;
+      }
+
       mysteryFruit = fruits[Math.floor(Math.random() * fruits.length)];
+      mysteryFruit.hints = [...mysteryFruit.hints].reverse();
       hintIndex = 0;
-      triesLeft = 5;
+      triesLeft = maxTries;
       startTime = Date.now();
       hintBox.innerHTML = "";
       resultEl.textContent = "";
       inputEl.disabled = false;
       inputEl.value = "";
       triesEl.textContent = "Tries left: " + triesLeft;
+      document.getElementById('restartButton').style.display = 'none';
       updateProgress();
       revealHint();
       clearInterval(hintInterval);
-      hintInterval = setInterval(revealHint, 5000);
-      inputEl.focus(); // 👈 Auto-focus here
+      hintInterval = setInterval(revealHint, hintSpeed);
+      inputEl.focus();
     }
 
     function updateTimer() {
@@ -174,7 +197,6 @@
       }
     });
 
-    let hintInterval;
     resetGame();
   </script>
 </body>
