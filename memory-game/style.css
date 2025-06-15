@@ -17,6 +17,27 @@ h1 {
   text-align: center;
 }
 
+/*style the login section*/
+#loginSection {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+#usernameInput {
+  padding: 5px 10px;
+  font-size: 16px;
+  margin: 0 10px;
+}
+#loginButton {
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
+#loggedInUser {
+  margin-left: 15px;
+  font-size: 16px;
+}
+
+
 #reset {
   padding: 10px 20px;
   margin-bottom: 20px;

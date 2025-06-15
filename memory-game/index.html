@@ -9,6 +9,15 @@
 <body>
   <h1>🧠 Memory Match Game</h1>
   
+  <div id="loginSection">
+  <label for="usernameInput">👤 Enter Username:</label>
+  <input type="text" id="usernameInput" placeholder="Your name" />
+  <button id="loginButton">Login</button>
+  <span id="loggedInUser" class="hidden">
+    Logged in as: <strong id="currentUsername"></strong>
+  </span>
+  </div>
+  
   <div id="stats">
     ⏱️ Time: <span id="timer">0</span>s |
     🔢 Moves: <span id="moves">0</span>
@@ -48,7 +57,7 @@
 
   <div id="resetButtonsRow">
     <button id="reset">🔄 Reset Game</button>
-    <button id="resetScores" class=""small-button">🗑️ Reset Scores</button>
+    <button id="resetScores" class="small-button">🗑️ Reset Scores</button>
   </div>
 </div>
 
