@@ -61,6 +61,7 @@ function createBoard() {
     card.innerText = '';
     card.addEventListener('click', flipCard);
     gameBoard.appendChild(card);
+  updateLeaderboard();
   });
 
 // adding timer and move counter and reset game stats
@@ -115,9 +116,14 @@ function flipCard() {
   if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
     firstCard.classList.add('matched');
     secondCard.classList.add('matched');
+    streak++;
+    if (streak >= 3) {
+      alert(`🔥 Streak Bonus! ${streak} correct in a row!`);
+    }
     resetTurn();
     checkGameOver();
   } else {
+    streak = 0;  // reset streak if not matched
     setTimeout(() => {
       firstCard.innerText = '';
       secondCard.innerText = '';
@@ -196,13 +202,21 @@ function updateLeaderboard() {
   const theme = document.getElementById('themeDropdown').value;
   const key = `leaderboard_${theme}_${difficulty}`;
   const scores = JSON.parse(localStorage.getItem(key)) || [];
+  
+  const label = document.getElementById('leaderboardLabel');
+  label.textContent = `Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)} | Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
+  
   const list = document.getElementById('leaderboardList');
-
-  // 💡 Add this line to show label
-  document.getElementById('leaderboardLabel').textContent =
-    `Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}, Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
-
   list.innerHTML = '';
+  
+  if (scores.length === 0) {
+    const emptyMessage = document.createElement('li');
+    emptyMessage.textContent = 'No scores yet!';
+    emptyMessage.style.color = '#777';
+    list.appendChild(emptyMessage);
+    return;
+  }
+  
   scores.forEach((score, index) => {
     const item = document.createElement('li');
     item.textContent = `${index + 1}. ⏱️ ${score.time}s | 🔢 ${score.moves} moves | 📅 ${score.date}`;
@@ -224,7 +238,6 @@ document.getElementById('difficultyDropdown').addEventListener('change', () => {
 });
 
 createBoard(); // initialize
-
 updateLeaderboard();
 
 function closePopup() {
