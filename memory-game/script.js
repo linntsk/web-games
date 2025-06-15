@@ -269,6 +269,18 @@ document.getElementById('resetScores').addEventListener('click', () => {
   alert('Best scores and leaderboard for this theme and difficulty have been reset.');
 });
 
+document.getElementById('leaderboardToggle').addEventListener('click', () => {
+  const content = document.getElementById('leaderboardSectionContent');
+  const header = document.getElementById('leaderboardToggle');
+  
+  content.classList.toggle('hidden');
+  if (content.classList.contains('hidden')) {
+    header.textContent = '🏅 Leaderboard ▼';
+  } else {
+    header.textContent = '🏅 Leaderboard ▲';
+  }
+});
+
 function closePopup() {
   document.getElementById('winPopup').classList.add('hidden');
   createBoard();

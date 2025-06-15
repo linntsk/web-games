@@ -26,34 +26,34 @@
   <div id="bestStats">
   🏆 Best Time: <span id="bestTime">–</span>s |
   💯 Best Moves: <span id="bestMoves">–</span>
-  </div>
+</div>
 
-<div id="leaderboardSection">
-  <h3>🏅 Leaderboard</h3>
-  <p id="leaderboardLabel" class="leaderboard-label"></p> <!-- Add this -->
+<div id="leaderboardToggle" class="collapsible-header">🏅 Leaderboard ▼</div>
+<div id="leaderboardSectionContent" class="collapsible-content hidden">
+  <p id="leaderboardLabel" class="leaderboard-label"></p>
   <ul id="leaderboardList" class="leaderboardList"></ul>
 </div>
 
-<div id="controls">
-  <div id="themeRow">
-    <label for="themeDropdown">🎨 Theme:</label>
-    <select id="themeDropdown">
-      <option value="animals">Animals</option>
-      <option value="food">Food</option>
-      <option value="sports">Sports</option>
-      <option value="weather">Weather</option>
-      <option value="faces">Faces</option>
-    </select>
-  </div>
 
-  <div id="difficultyRow">
-    <label for="difficultyDropdown">🧩 Difficulty:</label>
-    <select id="difficultyDropdown">
-      <option value="normal">Normal (4x5)</option>
-      <option value="medium">Medium (6x5)</option>
-      <option value="hard">Hard (8x5)</option>
-    </select>
-  </div>
+<div id="controls">
+  <div id="selectorsRow" class="selectors-row">
+  <label for="themeDropdown">Theme </label>
+  <select id="themeDropdown">
+    <option value="animals">Animals</option>
+    <option value="food">Food</option>
+    <option value="sports">Sports</option>
+    <option value="weather">Weather</option>
+    <option value="faces">Faces</option>
+  </select>
+
+  <label for="difficultyDropdown"> Level </label>
+  <select id="difficultyDropdown">
+    <option value="normal">Normal (4x5)</option>
+    <option value="medium">Medium (6x5)</option>
+    <option value="hard">Hard (8x5)</option>
+  </select>
+</div>
+
 
   <div id="resetButtonsRow">
     <button id="reset">🔄 Reset Game</button>
