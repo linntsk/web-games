@@ -13,6 +13,7 @@ let timer = 0;
 let moves = 0;
 let timerInterval = null;
 let gameStarted = false;
+let streak = 0;
 
 const gameBoard = document.getElementById('gameBoard');
 const resetBtn = document.getElementById('reset');
@@ -77,9 +78,9 @@ function createBoard() {
 gameBoard.style.gridTemplateColumns = 'repeat(5, 1fr)';
 
 //ignore the need to define fontsize. need to check if below is redundant
-document.querySelectorAll('.card').forEach(card => {
-  card.style.fontSize = fontSize;
-});
+//document.querySelectorAll('.card').forEach(card => {
+  //card.style.fontSize = fontSize;
+//});
 
 }
 
@@ -247,4 +248,20 @@ function closePopup() {
 }
 
 window.closePopup = closePopup;
+
+document.getElementById('resetScores').addEventListener('click', () => {
+  const difficulty = document.getElementById('difficultyDropdown').value;
+  const theme = document.getElementById('themeDropdown').value;
+
+  // Clear specific best score and leaderboard data
+  localStorage.removeItem(`bestTime_${difficulty}`);
+  localStorage.removeItem(`bestMoves_${difficulty}`);
+  localStorage.removeItem(`leaderboard_${theme}_${difficulty}`);
+
+  updateBestStats();
+  updateLeaderboard();
+  alert('Best scores and leaderboard for this theme and difficulty have been reset.');
+});
+
+
 
