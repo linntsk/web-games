@@ -13,7 +13,6 @@ let timer = 0;
 let moves = 0;
 let timerInterval = null;
 let gameStarted = false;
-let streak = 0;
 let currentUser = null;
 
 const gameBoard = document.getElementById('gameBoard');
@@ -26,7 +25,7 @@ const bestMovesDisplay = document.getElementById('bestMoves');
 function loginUser() {
   const username = document.getElementById('usernameInput').value.trim();
   if (!username) {
-    alert("Please enter a username.");
+    alert("Please enter your name to log in.");
     return;
   }
 
@@ -55,6 +54,10 @@ function loadUserFromStorage() {
   }
 }
 
+function getSelectedTheme() {
+  return document.getElementById('themeDropdown').value;
+}
+
 function getDifficultyCardCount() {
   const level = document.getElementById('difficultyDropdown').value;
   if (level === 'normal') return 10;
@@ -67,6 +70,7 @@ function updateBestStats() {
   const difficulty = document.getElementById('difficultyDropdown').value;
   const bestTime = localStorage.getItem(`bestTime_${currentUser}_${difficulty}`);
   const bestMoves = localStorage.getItem(`bestMoves_${currentUser}_${difficulty}`);
+
   bestTimeDisplay.textContent = bestTime ?? '–';
   bestMovesDisplay.textContent = bestMoves ?? '–';
 }
@@ -79,7 +83,7 @@ function createBoard() {
   if (!currentUser) return;
 
   gameBoard.innerHTML = '';
-  const theme = document.getElementById('themeDropdown').value;
+  const theme = getSelectedTheme();
   const pool = [...emojiThemes[theme]];
   const pairCount = getDifficultyCardCount();
   const selected = shuffle(pool).slice(0, pairCount);
@@ -101,7 +105,6 @@ function createBoard() {
   clearInterval(timerInterval);
   updateBestStats();
 
-  const difficulty = document.getElementById('difficultyDropdown').value;
   gameBoard.style.gridTemplateColumns = 'repeat(5, 1fr)';
 }
 
@@ -113,7 +116,9 @@ function flipCard() {
       timerDisplay.textContent = timer;
     }, 1000);
   }
-  if (lockBoard || this === firstCard) return;
+
+  if (lockBoard || this === firstCard || this.classList.contains('matched')) return;
+
   this.innerText = this.dataset.symbol;
   this.classList.add('flipped');
 
@@ -127,15 +132,17 @@ function flipCard() {
   moves++;
   movesDisplay.textContent = moves;
 
-  if (firstCard.dataset.symbol === secondCard.dataset.symbol) {
+  const isMatch = firstCard.dataset.symbol === secondCard.dataset.symbol;
+
+  if (isMatch) {
     firstCard.classList.add('matched');
     secondCard.classList.add('matched');
-    streak++;
-    if (streak >= 3) alert(`🔥 Streak Bonus! ${streak} correct in a row!`);
-    resetTurn();
-    checkGameOver();
+    // ✅ DO NOT clear innerText or unflip for matched cards
+    setTimeout(() => {
+      resetTurn();
+      checkGameOver();
+    }, 500); // Shorter delay is OK here
   } else {
-    streak = 0;
     setTimeout(() => {
       firstCard.innerText = '';
       secondCard.innerText = '';
@@ -145,6 +152,7 @@ function flipCard() {
     }, 1000);
   }
 }
+
 
 function resetTurn() {
   [firstCard, secondCard, lockBoard] = [null, null, false];
@@ -161,19 +169,23 @@ function checkGameOver() {
       document.getElementById('finalMoves').textContent = moves;
 
       const difficulty = document.getElementById('difficultyDropdown').value;
-      const bestTime = localStorage.getItem(`bestTime_${currentUser}_${difficulty}`);
-      const bestMoves = localStorage.getItem(`bestMoves_${currentUser}_${difficulty}`);
+      const bestTimeKey = `bestTime_${currentUser}_${difficulty}`;
+      const bestMovesKey = `bestMoves_${currentUser}_${difficulty}`;
+      const prevBestTime = localStorage.getItem(bestTimeKey);
+      const prevBestMoves = localStorage.getItem(bestMovesKey);
 
       saveToLeaderboard(timer, moves);
       updateLeaderboard();
 
       let message = '';
-      if (!bestTime || timer < bestTime) {
-        localStorage.setItem(`bestTime_${currentUser}_${difficulty}`, timer);
+      
+      if (!prevBestTime || timer < prevBestTime) {
+        localStorage.setItem(bestTimeKey, timer);
         message += `🎯 New Best Time!<br>`;
       }
-      if (!bestMoves || moves < bestMoves) {
-        localStorage.setItem(`bestMoves_${currentUser}_${difficulty}`, moves);
+      
+      if (!prevBestMoves || moves < prevBestMoves) {
+        localStorage.setItem(bestMovesKey, moves);
         message += `💪 New Best Move Count!`;
       }
 
@@ -188,13 +200,21 @@ function checkGameOver() {
 function saveToLeaderboard(time, moves) {
   const difficulty = document.getElementById('difficultyDropdown').value;
   const theme = document.getElementById('themeDropdown').value;
-  const key = `leaderboard_${theme}_${difficulty}`;
-  const entry = { time, moves, date: new Date().toLocaleString() };
+  const entry = {
+    user: currentUser,
+    time,
+    moves,
+    date: new Date().toLocaleString()
+  };
 
+  const key = `leaderboard_${theme}_${difficulty}`;
   const current = JSON.parse(localStorage.getItem(key)) || [];
+
   current.push(entry);
   current.sort((a, b) => a.time - b.time || a.moves - b.moves);
-  localStorage.setItem(key, JSON.stringify(current.slice(0, 5)));
+  const top5 = current.slice(0, 5);
+
+  localStorage.setItem(key, JSON.stringify(top5));
 }
 
 function updateLeaderboard() {
@@ -204,28 +224,24 @@ function updateLeaderboard() {
   const scores = JSON.parse(localStorage.getItem(key)) || [];
 
   const label = document.getElementById('leaderboardLabel');
-  label.textContent = `Theme: ${theme} | Difficulty: ${difficulty}`;
+  label.textContent = `Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)} | Difficulty: ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
 
   const list = document.getElementById('leaderboardList');
   list.innerHTML = '';
 
   if (scores.length === 0) {
-    const empty = document.createElement('li');
-    empty.textContent = 'No scores yet!';
-    list.appendChild(empty);
+    const emptyMessage = document.createElement('li');
+    emptyMessage.textContent = 'No scores yet!';
+    emptyMessage.style.color = '#777';
+    list.appendChild(emptyMessage);
     return;
   }
 
-  scores.forEach((score, i) => {
+  scores.forEach((score, index) => {
     const item = document.createElement('li');
-    item.textContent = `${i + 1}. ⏱️ ${score.time}s | 🔢 ${score.moves} moves | 📅 ${score.date}`;
+    item.textContent = `${index + 1}. 👤 ${score.user} | ⏱️ ${score.time}s | 🔢 ${score.moves} moves | 📅 ${score.date}`;
     list.appendChild(item);
   });
-}
-
-function closePopup() {
-  document.getElementById('winPopup').classList.add('hidden');
-  createBoard();
 }
 
 resetBtn.addEventListener('click', createBoard);
@@ -240,23 +256,27 @@ document.getElementById('difficultyDropdown').addEventListener('change', () => {
   updateLeaderboard();
 });
 
+document.getElementById('loginButton').addEventListener('click', loginUser);
+
 document.getElementById('resetScores').addEventListener('click', () => {
   const difficulty = document.getElementById('difficultyDropdown').value;
   const theme = document.getElementById('themeDropdown').value;
-
   localStorage.removeItem(`bestTime_${currentUser}_${difficulty}`);
   localStorage.removeItem(`bestMoves_${currentUser}_${difficulty}`);
   localStorage.removeItem(`leaderboard_${theme}_${difficulty}`);
-
   updateBestStats();
   updateLeaderboard();
-  alert('Scores reset.');
+  alert('Best scores and leaderboard for this theme and difficulty have been reset.');
 });
+
+function closePopup() {
+  document.getElementById('winPopup').classList.add('hidden');
+  createBoard();
+}
 
 window.closePopup = closePopup;
 
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('loginButton').addEventListener('click', loginUser);
   loadUserFromStorage();
   if (currentUser) {
     createBoard();
